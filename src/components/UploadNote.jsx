@@ -112,7 +112,7 @@ function UploadNote({ onAddNote, initialStudentName = '' }) {
     };
 
     // Pass new note back to parent state
-    onAddNote(newNote);
+    onAddNote(newNote, selectedFile);
 
     // Reset form fields
     setTitle('');

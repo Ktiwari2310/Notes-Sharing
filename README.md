@@ -49,40 +49,48 @@ All visual assets use genuine, free photography from **Unsplash**:
 
 ---
 
+## ⚡ Full-Stack Architecture (Frontend + Node/Express/MongoDB Backend)
+
+NoteShare includes a complete production-ready RESTful backend built with **Node.js**, **Express.js**, and **MongoDB** located in the [`backend/`](./backend/) directory.
+
+### Backend Capabilities:
+- **Authentication**: JWT token-based auth (`/api/auth/register`, `/api/auth/login`, `/api/auth/me`) supporting login by either Email or Student ID.
+- **Notes REST API**: Complete CRUD (`/api/notes`) with query filtering by keyword, subject, and semester.
+- **File Uploads**: Handles real PDF, DOCX, PPTX, and TXT uploads up to 25 MB using `multer`.
+- **Note Downloads**: Automatic download counter tracking and file streaming (`/api/notes/:id/download`).
+- **Database Seeding**: One-command seed script (`npm run server:seed`) to preload initial notes and demo student account into MongoDB.
+- **Resilient Frontend**: Connected to the backend with automatic offline fallback to `localStorage` if MongoDB is not started.
+
+---
+
 ## 📂 Project Structure
 
 ```text
 student-notes-portal/
-├── index.html                   # HTML entry with Google Fonts (Inter)
-├── package.json                 # Dependencies & scripts
-├── vite.config.js               # Vite config (dev server port 5173)
-├── README.md                    # Project documentation
-├── src/
+├── backend/                     # Node.js + Express.js + MongoDB API
+│   ├── config/db.js             # Mongoose MongoDB connection
+│   ├── controllers/             # Auth & Note controller functions
+│   ├── middleware/              # JWT auth, Multer file upload & error handlers
+│   ├── models/                  # User & Note Mongoose schemas
+│   ├── routes/                  # Express API route declarations
+│   ├── seeds/seedNotes.js       # MongoDB database seeder
+│   ├── uploads/                 # Storage for uploaded note files
+│   ├── .env                     # Backend configuration
+│   └── server.js                # Express server entry point
+├── src/                         # React Frontend (Vite)
 │   ├── main.jsx                 # Application root entry point
 │   ├── App.jsx                  # Route definitions, ProtectedRoute guards, layout
 │   ├── index.css                # Pure responsive CSS (Variables, Grid, Flexbox)
 │   ├── context/
-│   │   └── NotesContext.jsx     # Centralized notes state, auth state (isLoggedIn), localStorage
-│   ├── components/
-│   │   ├── ProtectedRoute.jsx   # Route guard checking authentication
-│   │   ├── Navbar.jsx           # Adaptive navbar (before/after login states)
-│   │   ├── Footer.jsx           # Reusable site footer
-│   │   ├── Hero.jsx             # Public hero banner with real stock photo
-│   │   ├── SearchBar.jsx        # Dual-filter search (keyword + subject)
-│   │   ├── NoteCard.jsx         # Card component with View/Download actions
-│   │   ├── NotesList.jsx        # Grid layout & empty-state fallback
-│   │   ├── UploadNote.jsx       # Student upload form with validation
-│   │   ├── NotePreviewModal.jsx # Document details & outline preview dialog
-│   │   └── Icons.jsx            # Lightweight, dependency-free SVG icons
-│   ├── pages/
-│   │   ├── Home.jsx             # Public landing page (no exposed notes/upload)
-│   │   ├── Dashboard.jsx        # Protected student dashboard
-│   │   ├── Notes.jsx            # Protected study notes catalog
-│   │   ├── Upload.jsx           # Protected upload studio
-│   │   ├── Login.jsx            # Full-page login
-│   │   └── Register.jsx         # Full-page registration (redirects to login)
+│   │   └── NotesContext.jsx     # Centralized state (Backend API + localStorage cache)
+│   ├── services/
+│   │   └── api.js               # Frontend API client for Express backend
+│   ├── components/              # UI Components (Cards, Modals, Navbar, etc.)
+│   ├── pages/                   # Multi-page application views (Dashboard, Notes, etc.)
 │   └── data/
-│       └── sampleNotes.js       # Preloaded sample notes (DSA, DBMS, OS, CN, Java, Web)
+│       └── sampleNotes.js       # Preloaded sample notes dataset
+├── package.json                 # Unified scripts for frontend & backend
+└── vite.config.js               # Dev server with /api proxy to port 5000
 ```
 
 ---
@@ -90,18 +98,29 @@ student-notes-portal/
 ## 🚀 Running and Testing the Flow
 
 ```bash
-# 1. Install dependencies
+# 1. Install root & frontend dependencies
 npm install
 
-# 2. Start development server
+# 2. Install backend dependencies
+cd backend && npm install && cd ..
+
+# 3. (Optional) Seed MongoDB with sample study notes & demo student
+npm run server:seed
+
+# 4. Start backend server (port 5000)
+npm run server:dev
+
+# 5. In another terminal, start frontend (port 5173)
 npm run dev
 ```
 
 Visit **`http://localhost:5173`**:
 
 1. **Test Protected Route Guard**: Try navigating directly to `http://localhost:5173/notes` or `http://localhost:5173/upload` without logging in. Notice you are immediately redirected to `/login`.
-2. **Test Register Flow**: Go to `/register`, fill out the form, and click **Create Account**. A success alert appears and you are redirected to `/login`.
-3. **Test Login Flow**: On `/login`, enter your student email/ID and password, then click **Login to NoteShare**. You are authenticated (`isLoggedIn = "true"`) and redirected to `/dashboard`.
+2. **Test Register Flow**: Go to `/register`, fill out the form, and click **Create Account**. It calls `POST /api/auth/register` (or local fallback), registers the student, and redirects to `/login`.
+3. **Test Login Flow**: On `/login`, enter your student email/ID and password, then click **Login to NoteShare**. Authenticates via `POST /api/auth/login`, stores JWT token, and redirects to `/dashboard`.
 4. **Test Authenticated Navigation**: Notice the Navbar now displays **Dashboard**, **Study Notes**, **Upload Notes**, your student badge, and a **Logout** button.
-5. **Test Upload & Notes**: Upload a new note on `/upload`; it instantly appears on `/notes` and persists in `localStorage`.
-6. **Test Logout**: Click **Logout** in the navbar. `isLoggedIn` is cleared and you are redirected back to `/login`. Visiting `/dashboard` or `/notes` is protected again!
+5. **Test Upload & Notes**: Upload a new note on `/upload` (with actual document file); it saves via `POST /api/notes` with `multer` into MongoDB and the server's `uploads/` folder!
+6. **Test Search & Download**: Search notes by keyword or subject filter on `/notes`. Clicking **Download** increments the MongoDB download counter and streams the document!
+7. **Test Logout**: Click **Logout** in the navbar. Session and token are cleared, and protected routes are guarded again!
+

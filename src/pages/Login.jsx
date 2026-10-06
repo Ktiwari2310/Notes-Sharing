@@ -56,6 +56,8 @@ function Login() {
       name: formattedName || 'Student Learner',
       email: identifier.includes('@') ? identifier : `${identifier}@college.edu`,
       studentId: identifier.includes('@') ? 'STU-' + Math.floor(1000 + Math.random() * 9000) : identifier,
+      identifier: identifier.trim(),
+      password: password,
       rememberMe
     });
 

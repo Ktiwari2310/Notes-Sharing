@@ -69,7 +69,8 @@ function Register() {
       name: fullName.trim(),
       fullName: fullName.trim(),
       studentId: studentId.trim(),
-      email: email.trim()
+      email: email.trim(),
+      password: password
     });
 
     navigate('/login');
