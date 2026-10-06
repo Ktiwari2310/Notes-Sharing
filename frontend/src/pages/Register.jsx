@@ -26,7 +26,7 @@ function Register() {
   const { handleRegister } = useNotes();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // 1. Validation: Required fields
@@ -64,16 +64,19 @@ function Register() {
       return;
     }
 
-    // Success: Register user, show success notification and redirect to /login
-    handleRegister({
-      name: fullName.trim(),
-      fullName: fullName.trim(),
-      studentId: studentId.trim(),
-      email: email.trim(),
-      password: password
-    });
-
-    navigate('/login');
+    try {
+      setError('');
+      await handleRegister({
+        name: fullName.trim(),
+        fullName: fullName.trim(),
+        studentId: studentId.trim(),
+        email: email.trim(),
+        password: password
+      });
+      navigate('/login');
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please check backend connection.');
+    }
   };
 
   return (

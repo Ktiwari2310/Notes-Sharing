@@ -19,12 +19,12 @@ function Upload() {
   const { handleAddNote, currentUser } = useNotes();
   const navigate = useNavigate();
 
-  const handleNoteCreated = (newNote, file) => {
-    handleAddNote(newNote, file);
+  const handleNoteCreated = async (newNote, file) => {
+    await handleAddNote(newNote, file);
     // Automatically transition to /notes after brief feedback or user can see it right away
     setTimeout(() => {
       navigate('/notes');
-    }, 1200);
+    }, 1500);
   };
 
   return (

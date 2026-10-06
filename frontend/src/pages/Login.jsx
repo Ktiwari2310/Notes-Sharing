@@ -22,7 +22,7 @@ function Login() {
   const { handleLogin } = useNotes();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Frontend validation
@@ -52,17 +52,22 @@ function Login() {
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
 
-    handleLogin({
-      name: formattedName || 'Student Learner',
-      email: identifier.includes('@') ? identifier : `${identifier}@college.edu`,
-      studentId: identifier.includes('@') ? 'STU-' + Math.floor(1000 + Math.random() * 9000) : identifier,
-      identifier: identifier.trim(),
-      password: password,
-      rememberMe
-    });
+    try {
+      setError('');
+      await handleLogin({
+        name: formattedName || 'Student Learner',
+        email: identifier.includes('@') ? identifier : `${identifier}@college.edu`,
+        studentId: identifier.includes('@') ? 'STU-' + Math.floor(1000 + Math.random() * 9000) : identifier,
+        identifier: identifier.trim(),
+        password: password,
+        rememberMe
+      });
 
-    // Navigate to dashboard as required
-    navigate('/dashboard');
+      // Navigate to dashboard upon successful login
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Login failed. Please verify your credentials or server connection.');
+    }
   };
 
   return (
