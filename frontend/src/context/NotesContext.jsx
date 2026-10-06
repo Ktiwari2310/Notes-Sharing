@@ -2,10 +2,9 @@
  * NotesContext.jsx
  *
  * Centralized State Management for NoteShare:
- * - Seamlessly integrates with Node/Express/MongoDB backend via notesAPI and authAPI.
- * - Supports automatic offline fallback to localStorage for resilience.
+ * - Directly integrates with Node/Express/MongoDB backend via notesAPI and authAPI.
  * - Manages authentication flow (JWT token and user profile).
- * - Manages note uploads (including multipart file uploads), search, preview, and downloads.
+ * - Manages note uploads (including multipart file uploads to MongoDB/Multer), search, preview, and downloads.
  */
 
 import React, { createContext, useContext, useState, useEffect } from "react";
@@ -15,7 +14,7 @@ import { notesAPI, authAPI } from "../services/api";
 const NotesContext = createContext();
 
 export function NotesProvider({ children }) {
-  // 1. Centralized Notes State (persisted in localStorage as fallback)
+  // 1. Centralized Notes State
   const [notes, setNotes] = useState(() => {
     const savedNotes = localStorage.getItem("noteshare_notes");
     if (savedNotes) {
@@ -50,13 +49,12 @@ export function NotesProvider({ children }) {
   const [toast, setToast] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync notes to backend on mount
+  // Sync notes from MongoDB on mount
   useEffect(() => {
     const fetchBackendNotes = async () => {
       try {
         const response = await notesAPI.getNotes();
         if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
-          // Normalize notes to ensure id is available
           const normalized = response.data.map((n) => ({
             ...n,
             id: n.id || n._id
@@ -64,7 +62,7 @@ export function NotesProvider({ children }) {
           setNotes(normalized);
         }
       } catch (err) {
-        console.log("Backend offline or not reachable; using cached/initial notes:", err.message);
+        console.warn("Backend not reached on mount; displaying cached notes:", err.message);
       }
     };
 
@@ -84,13 +82,12 @@ export function NotesProvider({ children }) {
           }
         })
         .catch(() => {
-          // Token expired or invalid
           localStorage.removeItem("noteshare_token");
         });
     }
   }, []);
 
-  // Sync notes to localStorage as cache
+  // Cache notes in localStorage
   useEffect(() => {
     localStorage.setItem("noteshare_notes", JSON.stringify(notes));
   }, [notes]);
@@ -112,42 +109,41 @@ export function NotesProvider({ children }) {
     }, 4000);
   };
 
-  // Add a newly uploaded note (supports backend MongoDB + Multer upload)
+  // Add a newly uploaded note (uploads directly to MongoDB & server storage)
   const handleAddNote = async (newNote, file = null) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      let createdNote;
 
-      let createdNote = newNote;
+      if (file) {
+        const formData = new FormData();
+        formData.append("title", newNote.title);
+        formData.append("subject", newNote.subject);
+        formData.append("description", newNote.description || "");
+        formData.append("uploadedBy", newNote.uploadedBy);
+        formData.append("semester", newNote.semester || "Current");
+        formData.append("previewContent", newNote.previewContent || "");
+        formData.append("file", file);
 
-      // Try uploading to backend
-      try {
-        if (file) {
-          const formData = new FormData();
-          formData.append("title", newNote.title);
-          formData.append("subject", newNote.subject);
-          formData.append("description", newNote.description || "");
-          formData.append("uploadedBy", newNote.uploadedBy);
-          formData.append("semester", newNote.semester || "Current");
-          formData.append("previewContent", newNote.previewContent || "");
-          formData.append("file", file);
-
-          const res = await notesAPI.createNote(formData);
-          if (res?.data) {
-            createdNote = { ...res.data, id: res.data.id || res.data._id };
-          }
-        } else {
-          const res = await notesAPI.createNote(newNote);
-          if (res?.data) {
-            createdNote = { ...res.data, id: res.data.id || res.data._id };
-          }
-        }
-      } catch (apiErr) {
-        console.warn("Backend upload failed, falling back to local state:", apiErr.message);
+        const res = await notesAPI.createNote(formData);
+        createdNote = res.data;
+      } else {
+        const res = await notesAPI.createNote(newNote);
+        createdNote = res.data;
       }
 
-      setNotes((prevNotes) => [createdNote, ...prevNotes]);
-      showToast(`Note "${createdNote.title}" uploaded successfully!`);
-      return createdNote;
+      const normalized = {
+        ...createdNote,
+        id: createdNote.id || createdNote._id
+      };
+
+      setNotes((prevNotes) => [normalized, ...prevNotes]);
+      showToast(`Note "${normalized.title}" uploaded to database successfully!`);
+      return normalized;
+    } catch (apiErr) {
+      const msg = apiErr.message || "Failed to upload note to database";
+      showToast(`Upload failed: ${msg}`);
+      throw apiErr;
     } finally {
       setIsLoading(false);
     }
@@ -156,51 +152,39 @@ export function NotesProvider({ children }) {
   // Delete an uploaded note
   const handleDeleteNote = async (noteId) => {
     try {
-      try {
-        await notesAPI.deleteNote(noteId);
-      } catch (apiErr) {
-        console.warn("Backend delete skipped or failed:", apiErr.message);
-      }
-
-      setNotes((prevNotes) => prevNotes.filter((note) => (note.id !== noteId && note._id !== noteId)));
+      await notesAPI.deleteNote(noteId);
+      setNotes((prevNotes) =>
+        prevNotes.filter((note) => note.id !== noteId && note._id !== noteId)
+      );
       showToast("Note deleted successfully.");
     } catch (err) {
-      showToast("Failed to delete note.");
+      showToast(`Failed to delete note: ${err.message}`);
+      throw err;
     }
   };
 
   // Login handler
   const handleLogin = async (userData) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      const res = await authAPI.login({
+        identifier: userData.identifier || userData.email || userData.studentId,
+        password: userData.password
+      });
 
-      // Try backend authentication
-      try {
-        const res = await authAPI.login({
-          identifier: userData.identifier || userData.email || userData.studentId,
-          password: userData.password
-        });
-
-        if (res?.token && res?.user) {
-          localStorage.setItem("noteshare_token", res.token);
-          localStorage.setItem("isLoggedIn", "true");
-          setIsLoggedIn(true);
-          setCurrentUser(res.user);
-          showToast(`Welcome back, ${res.user.name || res.user.fullName || "Student"}!`);
-          return res.user;
-        }
-      } catch (apiErr) {
-        console.warn("Backend login failed or server offline, using local state:", apiErr.message);
+      if (res?.token && res?.user) {
+        localStorage.setItem("noteshare_token", res.token);
+        localStorage.setItem("isLoggedIn", "true");
+        setIsLoggedIn(true);
+        setCurrentUser(res.user);
+        showToast(`Welcome back, ${res.user.name || res.user.fullName || "Student"}!`);
+        return res.user;
       }
-
-      // Fallback local authentication
-      localStorage.setItem("isLoggedIn", "true");
-      setIsLoggedIn(true);
-      setCurrentUser(userData);
-      showToast(
-        `Welcome back, ${userData.name || userData.fullName || "Student"}!`
-      );
-      return userData;
+      throw new Error("Invalid response received from server");
+    } catch (apiErr) {
+      const msg = apiErr.message || "Login failed";
+      showToast(`Login failed: ${msg}`);
+      throw apiErr;
     } finally {
       setIsLoading(false);
     }
@@ -208,28 +192,24 @@ export function NotesProvider({ children }) {
 
   // Register handler
   const handleRegister = async (userData) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      const res = await authAPI.register({
+        fullName: userData.fullName || userData.name,
+        studentId: userData.studentId,
+        email: userData.email,
+        password: userData.password
+      });
 
-      // Try backend registration
-      try {
-        const res = await authAPI.register({
-          fullName: userData.fullName || userData.name,
-          studentId: userData.studentId,
-          email: userData.email,
-          password: userData.password
-        });
-
-        if (res?.token) {
-          localStorage.setItem("noteshare_token", res.token);
-        }
-      } catch (apiErr) {
-        console.warn("Backend registration failed or server offline, continuing with local notice:", apiErr.message);
+      if (res?.token) {
+        localStorage.setItem("noteshare_token", res.token);
       }
-
-      showToast(
-        `Account created for ${userData.fullName || "Student"}! Please log in.`
-      );
+      showToast(`Account created for ${userData.fullName || "Student"}! Please log in.`);
+      return res;
+    } catch (apiErr) {
+      const msg = apiErr.message || "Registration failed";
+      showToast(`Registration failed: ${msg}`);
+      throw apiErr;
     } finally {
       setIsLoading(false);
     }
@@ -247,11 +227,10 @@ export function NotesProvider({ children }) {
     showToast("Logged out successfully.");
   };
 
-  // Download simulation and backend streaming
+  // Download note handler
   const handleDownloadNote = (note) => {
     const noteId = note.id || note._id;
 
-    // If fileUrl or backend download exists, try opening it
     if (note.filePath || (typeof noteId === "string" && noteId.length === 24)) {
       try {
         const downloadUrl = notesAPI.getDownloadUrl(noteId);

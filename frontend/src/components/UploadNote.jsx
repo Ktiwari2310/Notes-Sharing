@@ -58,7 +58,7 @@ function UploadNote({ onAddNote, initialStudentName = '' }) {
   };
 
   // Form submit handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validation
@@ -111,27 +111,31 @@ function UploadNote({ onAddNote, initialStudentName = '' }) {
         : `Uploaded by ${studentName.trim()} for ${finalSubject}. Ready for download and review.`
     };
 
-    // Pass new note back to parent state
-    onAddNote(newNote, selectedFile);
+    try {
+      setErrorMessage('');
+      // Pass new note back to parent state and wait for database response
+      await onAddNote(newNote, selectedFile);
 
-    // Reset form fields
-    setTitle('');
-    setSubject('Data Structures');
-    setCustomSubject('');
-    setDescription('');
-    setStudentName('');
-    setSelectedFile(null);
-    setErrorMessage('');
-    setIsSuccess(true);
+      // Reset form fields
+      setTitle('');
+      setSubject('Data Structures');
+      setCustomSubject('');
+      setDescription('');
+      setStudentName('');
+      setSelectedFile(null);
+      setIsSuccess(true);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      // Hide success alert after 4 seconds
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 4000);
+    } catch (err) {
+      setErrorMessage(err.message || 'Failed to upload note to database.');
     }
-
-    // Hide success alert after 4 seconds
-    setTimeout(() => {
-      setIsSuccess(false);
-    }, 4000);
   };
 
   return (
