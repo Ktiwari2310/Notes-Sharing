@@ -226,7 +226,7 @@ function UploadNote({
               <div>
                 <h2 className="upload-title">Upload Study Notes</h2>
                 <p className="upload-subtitle">
-                  Help your classmates succeed! Share lecture notes, formulas, or summaries across Semesters 2, 3, 4, 5, and 6.
+                  Help your classmates succeed! Share lecture notes, formulas, or summaries across Semesters 3, 4, 5, and 6.
                 </p>
               </div>
             </div>
@@ -271,12 +271,9 @@ function UploadNote({
                         {sem.name} ({sem.shortName})
                       </option>
                     ))}
-                    <option value="Semester 1">Semester 1 (Sem 1)</option>
-                    <option value="Semester 7">Semester 7 (Sem 7)</option>
-                    <option value="Semester 8">Semester 8 (Sem 8)</option>
                   </select>
                 )}
-                <span className="field-hint">Choose which semester folder this note belongs to</span>
+                <span className="field-hint">Choose which semester folder this note belongs to (Sem 3, 4, 5, or 6)</span>
               </div>
 
               {/* Subject Field */}

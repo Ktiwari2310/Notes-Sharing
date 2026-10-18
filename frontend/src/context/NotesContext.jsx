@@ -16,7 +16,7 @@ const NotesContext = createContext();
 export function NotesProvider({ children }) {
   // 1. Centralized Notes State
   const [notes, setNotes] = useState(() => {
-    const savedNotes = localStorage.getItem("noteshare_notes");
+    const savedNotes = localStorage.getItem("noteshare_notes_v3");
     if (savedNotes) {
       try {
         return JSON.parse(savedNotes);
@@ -89,7 +89,7 @@ export function NotesProvider({ children }) {
 
   // Cache notes in localStorage
   useEffect(() => {
-    localStorage.setItem("noteshare_notes", JSON.stringify(notes));
+    localStorage.setItem("noteshare_notes_v3", JSON.stringify(notes));
   }, [notes]);
 
   // Sync user to localStorage

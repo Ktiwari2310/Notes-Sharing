@@ -48,10 +48,10 @@ function Upload() {
               <h1 className="banner-title">Upload Study Notes & PDFs</h1>
               <p className="banner-desc">
                 Share your handwritten lecture notes, formula sheets, or exam solutions with your college peers.
-                Select your semester (Sem 2, 3, 4, 5, 6) and subject folder to keep resources neatly organized.
+                Select your semester (Sem 3, 4, 5, 6) and subject folder to keep resources neatly organized.
               </p>
               <div className="upload-tips-summary">
-                <span className="tip-chip">✓ Organized by Semesters 2, 3, 4, 5 & 6</span>
+                <span className="tip-chip">✓ Organized by Semesters 3, 4, 5 & 6</span>
                 <span className="tip-chip">✓ Folder-based subject structure</span>
                 <span className="tip-chip">✓ PDFs, DOCs, and PPTs supported</span>
               </div>

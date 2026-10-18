@@ -143,7 +143,7 @@ function Notes() {
               <span className="banner-tag">Student Library &amp; Archives</span>
               <h1 className="banner-title">Browse Study Notes</h1>
               <p className="banner-desc">
-                Organized hierarchically into <strong>Semesters 2, 3, 4, 5, and 6</strong> folders.
+                Organized hierarchically into <strong>Semesters 3, 4, 5, and 6</strong> folders.
                 Navigate into your semester, select a subject folder, and access or upload lecture notes and PDFs.
               </p>
 

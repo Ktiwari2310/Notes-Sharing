@@ -2,29 +2,10 @@
  * semestersData.js
  * 
  * Centralized Semester & Subject configuration for NoteShare.
- * Configured for Semesters 2, 3, 4, 5, and 6 with their respective subject folders.
+ * Configured specifically for Semesters 3, 4, 5, and 6 with exact curriculum subject names.
  */
 
 export const SEMESTERS = [
-  {
-    id: '2',
-    number: 2,
-    name: 'Semester 2',
-    shortName: 'Sem 2',
-    slug: 'sem-2',
-    color: '#2563eb', // Royal Blue
-    lightBg: '#eff6ff',
-    borderColor: '#bfdbfe',
-    icon: '📁',
-    description: 'Foundational Engineering Mathematics, Physics, & Basic Programming',
-    subjects: [
-      'Mathematics II',
-      'Applied Physics',
-      'Basic Electrical Engineering',
-      'Programming in C',
-      'Engineering Graphics'
-    ]
-  },
   {
     id: '3',
     number: 3,
@@ -35,14 +16,13 @@ export const SEMESTERS = [
     lightBg: '#f5f3ff',
     borderColor: '#ddd6fe',
     icon: '📁',
-    description: 'Data Structures, Logic Design, Object-Oriented Programming & Discrete Math',
+    description: 'Universal Human Values, Mathematics-III, Digital Circuit Design, Data Structures & DBMS',
     subjects: [
-      'Data Structures',
-      'Database Management System',
-      'Digital Electronics & Logic Design (DCD)',
-      'Mathematics III',
-      'Java Programming',
-      'Universal Human Values (UHV)'
+      'Universal Human Values-II',
+      'Mathematics-III',
+      'Digital Circuit Design',
+      'Data Structures & Algorithms',
+      'Database Management Systems'
     ]
   },
   {
@@ -55,14 +35,12 @@ export const SEMESTERS = [
     lightBg: '#f0fdfa',
     borderColor: '#99f6e4',
     icon: '📁',
-    description: 'Operating Systems, Computer Architecture, Algorithms & Applied Math',
+    description: 'Mathematics-IV, Computer Organization & Microprocessors, No SQL, and Computer Networks',
     subjects: [
-      'Operating Systems',
-      'Computer Organization & Architecture (COA)',
-      'Mathematics IV',
-      'Theory of Computation (TOC)',
-      'Design & Analysis of Algorithms',
-      'NoSQL Databases'
+      'Mathematics-IV',
+      'Computer Organization Architecture & Microprocessors',
+      'No SQL',
+      'Computer Networks'
     ]
   },
   {
@@ -75,14 +53,13 @@ export const SEMESTERS = [
     lightBg: '#fffbeb',
     borderColor: '#fde68a',
     icon: '📁',
-    description: 'Computer Networks, Web Technologies, Software Engineering & Cloud',
+    description: 'Soft Skills, Operating System, Automata Theory, Web Programming & Cryptography',
     subjects: [
-      'Computer Networks',
-      'Web Technologies',
-      'Software Engineering',
-      'Artificial Intelligence',
-      'Cyber Security & Cryptography',
-      'Cloud Computing'
+      'Soft Skill & Interpersonal Communication',
+      'Operating System',
+      'Automata Theory',
+      'Web Programming',
+      'Cryptography and Network Security'
     ]
   },
   {
@@ -95,32 +72,29 @@ export const SEMESTERS = [
     lightBg: '#fdf2f8',
     borderColor: '#fbcfe8',
     icon: '📁',
-    description: 'Machine Learning, Compiler Design, Mobile Apps & Distributed Systems',
+    description: 'Work Place Mental Health, Data Mining, Software Engineering & Electives',
     subjects: [
-      'Machine Learning',
-      'Compiler Design',
-      'Mobile Application Development',
-      'Internet of Things (IoT)',
-      'Big Data Analytics',
-      'Information Security'
+      'Work Place Mental Health',
+      'Data Mining and Business Intelligence',
+      'Software Engineering',
+      'Professional Elective-I',
+      'Open Elective-I'
     ]
   }
 ];
 
-// Flat list of all unique subjects across all semesters
+// Flat list of all unique subjects across Semesters 3, 4, 5, 6
 export const ALL_SEMESTER_SUBJECTS = Array.from(
   new Set(SEMESTERS.flatMap((s) => s.subjects))
-).sort();
+);
 
 /**
- * Normalizes any semester string to its canonical number ('2', '3', '4', '5', '6')
- * Handles formats like 'Semester 2', 'Sem 2', 'sem-2', '2', 'Semester II', 'ii', etc.
+ * Normalizes any semester string to canonical number ('3', '4', '5', '6')
  */
 export const getSemesterNumber = (semesterStr) => {
   if (!semesterStr) return null;
   const s = String(semesterStr).trim().toLowerCase();
 
-  if (s.includes('sem-2') || s.includes('sem 2') || s.includes('semester 2') || s === '2' || s === 'ii' || s.endsWith(' 2')) return '2';
   if (s.includes('sem-3') || s.includes('sem 3') || s.includes('semester 3') || s === '3' || s === 'iii' || s.endsWith(' 3')) return '3';
   if (s.includes('sem-4') || s.includes('sem 4') || s.includes('semester 4') || s === '4' || s === 'iv' || s.endsWith(' 4')) return '4';
   if (s.includes('sem-5') || s.includes('sem 5') || s.includes('semester 5') || s === '5' || s === 'v' || s.endsWith(' 5')) return '5';
@@ -155,35 +129,48 @@ export const findSemester = (query) => {
  */
 export const doesSubjectMatch = (noteSubject, targetSubject) => {
   if (!noteSubject || !targetSubject) return false;
-  const n = String(noteSubject).trim().toLowerCase();
-  const t = String(targetSubject).trim().toLowerCase();
+  const n = String(noteSubject).trim().toLowerCase().replace(/[-_&]/g, ' ');
+  const t = String(targetSubject).trim().toLowerCase().replace(/[-_&]/g, ' ');
 
   if (n === t) return true;
 
   const aliases = {
-    'dsa': ['data structures', 'data structures & algorithms', 'data structures and algorithms'],
-    'dbms': ['database management system', 'database management systems', 'dbms'],
-    'os': ['operating systems', 'operating system'],
-    'cn': ['computer networks', 'computer network'],
-    'coa': ['computer organization & architecture', 'computer organization and architecture', 'coa'],
-    'wp': ['web technologies', 'web programming', 'web tech', 'web development'],
-    'web technologies': ['web tech', 'web programming', 'wp', 'web development'],
-    'maths ii': ['mathematics ii', 'maths 2', 'mathematics 2', 'maths ii'],
-    'maths iii': ['mathematics iii', 'maths 3', 'mathematics 3', 'maths iii'],
-    'maths iv': ['mathematics iv', 'maths 4', 'mathematics 4', 'maths iv'],
-    'mathematics ii': ['maths ii', 'maths 2', 'mathematics 2'],
-    'mathematics iii': ['maths iii', 'maths 3', 'mathematics 3'],
-    'mathematics iv': ['maths iv', 'maths 4', 'mathematics 4'],
-    'dcd': ['digital electronics & logic design (dcd)', 'digital logic', 'digital electronics', 'dcd'],
-    'ai': ['artificial intelligence', 'ai'],
-    'ml': ['machine learning', 'ml'],
-    'se': ['software engineering', 'se'],
-    'toc': ['theory of computation', 'theory of computation (toc)', 'toc'],
-    'uhv': ['universal human values', 'universal human values (uhv)', 'uhv']
+    // Sem 3
+    'universal human values ii': ['universal human values', 'uhv', 'uhv ii', 'uhv 2', 'universal human values 2'],
+    'mathematics iii': ['maths iii', 'maths 3', 'mathematics 3', 'maths-iii', 'bsc it 301'],
+    'digital circuit design': ['dcd', 'esc it 301', 'digital circuit', 'digital circuits', 'digital electronics'],
+    'data structures algorithms': ['dsa', 'data structures', 'pcc it 301', 'data structure', 'data structure and algorithms'],
+    'database management systems': ['dbms', 'pcc it 302', 'database management system', 'database'],
+
+    // Sem 4
+    'mathematics iv': ['maths iv', 'maths 4', 'mathematics 4', 'maths-iv'],
+    'computer organization architecture microprocessors': ['coa', 'esc it 401', 'computer organization', 'microprocessors', 'coa and microprocessors', 'computer organization architecture'],
+    'no sql': ['nosql', 'pcc it 401', 'no-sql'],
+    'computer networks': ['cn', 'pcc it 402', 'computer network', 'networks'],
+
+    // Sem 5
+    'soft skill interpersonal communication': ['ssic', 'soft skills', 'soft skill and interpersonal communication', 'interpersonal communication'],
+    'operating system': ['os', 'pcc it 501', 'operating systems'],
+    'automata theory': ['at', 'pcc it 502', 'theory of computation', 'toc', 'automata'],
+    'web programming': ['wp', 'pcc it 503', 'web technologies', 'web tech', 'web development'],
+    'cryptography and network security': ['cns', 'pcc it 504', 'cryptography', 'network security'],
+
+    // Sem 6
+    'work place mental health': ['wpmh', 'workplace mental health', 'mental health'],
+    'data mining and business intelligence': ['dmbi', 'pcc it 601', 'data mining', 'business intelligence'],
+    'software engineering': ['se', 'pcc it 602'],
+    'professional elective i': ['pe 1', 'pec it 601x', 'professional elective 1', 'professional elective'],
+    'open elective i': ['oe 1', 'oec 601x', 'open elective 1', 'open elective']
   };
 
-  if (aliases[t] && aliases[t].includes(n)) return true;
-  if (aliases[n] && aliases[n].includes(t)) return true;
+  for (const [key, altList] of Object.entries(aliases)) {
+    const isTarget = t.includes(key) || key.includes(t);
+    const isNote = n.includes(key) || key.includes(n);
+
+    if (isTarget && (altList.some(a => n.includes(a)) || isNote)) return true;
+    if (isNote && (altList.some(a => t.includes(a)) || isTarget)) return true;
+  }
+
   if (n.includes(t) || t.includes(n)) return true;
 
   return false;
