@@ -8,23 +8,41 @@ import {
   UserIcon,
 } from "../components/Icons";
 
+const semesters = [
+  {
+    name: "Semester III",
+    slug: "iii",
+    subjects: ["UHV", "Maths III", "DCD", "DSA", "DBMS"],
+    color: "#8b5cf6",
+  },
+  {
+    name: "Semester IV",
+    slug: "iv",
+    subjects: ["Maths IV", "COA", "NoSQL", "CN"],
+    color: "#0d9488",
+  },
+  {
+    name: "Semester V",
+    slug: "v",
+    subjects: ["SSIC", "OS", "AT", "WP", "CNS"],
+    color: "#6366f1",
+  },
+];
+
 function Dashboard() {
   const { notes, currentUser } = useNotes();
-
   const studentName = currentUser?.name || currentUser?.fullName || "Student";
 
-  // Calculate unique subjects
   const uniqueSubjects = new Set(notes.map((note) => note.subject)).size;
 
   return (
     <div className="page-wrapper dashboard-page">
-      {/* 1. Dashboard Welcome Banner */}
       <section className="dashboard-header-section">
         <div className="container">
           <div className="dashboard-welcome-card">
             <div className="welcome-text-col">
               <div className="welcome-badge">
-                <span className="badge-dot"></span>
+                <span className="badge-dot" />
                 <span>Active Student Session</span>
               </div>
 
@@ -34,12 +52,10 @@ function Dashboard() {
               </h1>
 
               <p className="welcome-subtitle">
-                This is your centralized study dashboard. Discover lecture notes
-                shared by peers or contribute your own revision summaries to
-                help classmates.
+                Discover study notes shared by your classmates or upload your
+                own revision material.
               </p>
 
-              {/* Dashboard Actions */}
               <div className="dashboard-quick-actions">
                 <Link to="/notes" className="btn btn-primary btn-lg">
                   <EyeIcon />
@@ -53,13 +69,10 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Dashboard Statistics */}
             <div className="welcome-stats-col">
               <div className="dash-stat-box">
                 <span className="dash-stat-num">{notes.length}</span>
-
                 <span className="dash-stat-title">Study Resources</span>
-
                 <span className="dash-stat-desc">
                   Available for instant download
                 </span>
@@ -67,9 +80,7 @@ function Dashboard() {
 
               <div className="dash-stat-box">
                 <span className="dash-stat-num">{uniqueSubjects}</span>
-
                 <span className="dash-stat-title">Course Subjects</span>
-
                 <span className="dash-stat-desc">Organized by semester</span>
               </div>
             </div>
@@ -77,65 +88,49 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 2. Navigation Quick Hub Cards */}
       <section className="dashboard-nav-cards-section">
         <div className="container">
           <div className="dash-hub-grid">
-            {/* Explore Notes */}
             <div className="dash-hub-card">
               <div className="dash-hub-icon-wrapper">
                 <DocumentIcon className="dash-hub-icon" />
               </div>
-
               <div className="dash-hub-content">
                 <h3 className="dash-hub-title">Study Notes Repository</h3>
-
                 <p className="dash-hub-desc">
-                  Browse and search lecture notes, handwritten formulas, and
-                  past papers by subject or topic.
+                  Browse and search lecture notes, formulas, and past papers.
                 </p>
-
                 <Link to="/notes" className="btn btn-outline btn-sm">
-                  <span>Open Notes Catalog →</span>
+                  Open Notes Catalog →
                 </Link>
               </div>
             </div>
 
-            {/* Upload Notes */}
             <div className="dash-hub-card">
               <div className="dash-hub-icon-wrapper accent">
                 <UploadCloudIcon className="dash-hub-icon" />
               </div>
-
               <div className="dash-hub-content">
                 <h3 className="dash-hub-title">Upload & Share Material</h3>
-
                 <p className="dash-hub-desc">
-                  Have handwritten cheat sheets or summaries? Upload them to
-                  keep a backup and support fellow students.
+                  Share your revision notes and support fellow students.
                 </p>
-
                 <Link to="/upload" className="btn btn-primary btn-sm">
-                  <span>Go to Upload Studio →</span>
+                  Go to Upload Studio →
                 </Link>
               </div>
             </div>
 
-            {/* Student Profile */}
             <div className="dash-hub-card">
               <div className="dash-hub-icon-wrapper info">
                 <UserIcon className="dash-hub-icon" />
               </div>
-
               <div className="dash-hub-content">
                 <h3 className="dash-hub-title">Student Profile</h3>
-
                 <p className="dash-hub-desc">
                   Logged in as <strong>{studentName}</strong>
-                  {currentUser?.email ? ` (${currentUser.email})` : ""}. Your
-                  session is actively authenticated.
+                  {currentUser?.email ? ` (${currentUser.email})` : ""}.
                 </p>
-
                 <span className="profile-active-tag">
                   ✓ Authenticated Session
                 </span>
@@ -145,22 +140,51 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* 3. Study Repository Banner */}
+      {/* Semester Folder Explorer */}
+      <section className="semester-explorer-section">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="section-eyebrow">Your Study Space</span>
+              <h2 className="section-title">Explore by Semester</h2>
+              <p className="section-subtitle">
+                Choose a semester to explore its subject folders.
+              </p>
+            </div>
+          </div>
+
+          <div className="semester-folder-grid">
+            {semesters.map((semester) => (
+              <Link
+                key={semester.slug}
+                to={`/semester/${semester.slug}`}
+                className="semester-folder-card"
+                style={{ "--semester-color": semester.color }}
+              >
+                <div className="semester-folder-icon">📁</div>
+                <h3>{semester.name}</h3>
+                <p>{semester.subjects.length} subject folders</p>
+                <div className="semester-subject-preview">
+                  {semester.subjects.join(" · ")}
+                </div>
+                <span className="semester-folder-link">Open semester →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="dashboard-recent-section">
         <div className="container">
           <div className="section-header">
             <div>
               <span className="section-eyebrow">Study Repository</span>
-
               <h2 className="section-title">Your Notes Are Ready</h2>
-
               <p className="section-subtitle">
                 Explore {notes.length} study resources across {uniqueSubjects}{" "}
-                subjects. Search, preview, and download notes from the dedicated
-                Notes Catalog.
+                subjects in your Notes Catalog.
               </p>
             </div>
-
             <Link to="/notes" className="btn btn-primary">
               <EyeIcon />
               <span>Browse All Notes</span>

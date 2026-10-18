@@ -1,34 +1,41 @@
 /**
  * App.jsx
- * 
+ *
  * Multi-Page Application Layout & Router Configuration for NoteShare.
  * Configures public & protected routes using React Router:
- * 
+ *
  * PUBLIC ROUTES:
  *  - /         : Landing Page (Public overview, 2-3 real stock images, CTA)
  *  - /login    : Full-Page Login (Public)
  *  - /register : Full-Page Register (Public)
- * 
+ *
  * PROTECTED ROUTES:
  *  - /dashboard: Student Dashboard (Protected by ProtectedRoute)
  *  - /notes    : Study Notes Catalog (Protected by ProtectedRoute)
  *  - /upload   : Upload Notes Studio (Protected by ProtectedRoute)
  */
 
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ProtectedRoute from './components/ProtectedRoute';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import Notes from './pages/Notes';
-import Upload from './pages/Upload';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import NotePreviewModal from './components/NotePreviewModal';
-import { NotesProvider, useNotes } from './context/NotesContext';
-import { CheckCircleIcon } from './components/Icons';
+import React, { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Notes from "./pages/Notes";
+import Upload from "./pages/Upload";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import NotePreviewModal from "./components/NotePreviewModal";
+import { NotesProvider, useNotes } from "./context/NotesContext";
+import { CheckCircleIcon } from "./components/Icons";
+import Semester from "./pages/Semester";
 
 // Automatically scroll window to top on route change
 function ScrollToTop() {
@@ -47,7 +54,8 @@ function AppContent() {
   const { previewNote, setPreviewNote, handleDownloadNote, toast } = useNotes();
 
   // Hide standard Navbar and Footer on dedicated auth pages (/login and /register)
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/register";
 
   return (
     <div className="app-layout">
@@ -70,6 +78,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/semester/:semesterId"
+            element={
+              <ProtectedRoute>
+                <Semester />
               </ProtectedRoute>
             }
           />
