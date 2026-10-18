@@ -8,26 +8,7 @@ import {
   UserIcon,
 } from "../components/Icons";
 
-const semesters = [
-  {
-    name: "Semester III",
-    slug: "iii",
-    subjects: ["UHV", "Maths III", "DCD", "DSA", "DBMS"],
-    color: "#8b5cf6",
-  },
-  {
-    name: "Semester IV",
-    slug: "iv",
-    subjects: ["Maths IV", "COA", "NoSQL", "CN"],
-    color: "#0d9488",
-  },
-  {
-    name: "Semester V",
-    slug: "v",
-    subjects: ["SSIC", "OS", "AT", "WP", "CNS"],
-    color: "#6366f1",
-  },
-];
+import { SEMESTERS } from "../data/semestersData";
 
 function Dashboard() {
   const { notes, currentUser } = useNotes();
@@ -154,10 +135,10 @@ function Dashboard() {
           </div>
 
           <div className="semester-folder-grid">
-            {semesters.map((semester) => (
+            {SEMESTERS.map((semester) => (
               <Link
-                key={semester.slug}
-                to={`/semester/${semester.slug}`}
+                key={semester.id}
+                to={`/notes?semester=${semester.id}`}
                 className="semester-folder-card"
                 style={{ "--semester-color": semester.color }}
               >
@@ -165,9 +146,10 @@ function Dashboard() {
                 <h3>{semester.name}</h3>
                 <p>{semester.subjects.length} subject folders</p>
                 <div className="semester-subject-preview">
-                  {semester.subjects.join(" · ")}
+                  {semester.subjects.slice(0, 3).join(" · ")}
+                  {semester.subjects.length > 3 ? " · ..." : ""}
                 </div>
-                <span className="semester-folder-link">Open semester →</span>
+                <span className="semester-folder-link">Open folder →</span>
               </Link>
             ))}
           </div>

@@ -83,7 +83,7 @@ function Navbar() {
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  Study Notes
+                  Browse Notes
                 </NavLink>
               </li>
               <li>

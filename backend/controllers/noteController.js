@@ -141,7 +141,7 @@ const createNote = async (req, res, next) => {
       description: description ? description.trim() : 'Uploaded study materials and lecture notes.',
       uploadedBy: finalUploader.trim(),
       user: req.user ? req.user._id : null,
-      semester: semester || 'Current',
+      semester: semester ? semester.trim() : 'Semester 3',
       fileSize,
       fileType,
       fileName,

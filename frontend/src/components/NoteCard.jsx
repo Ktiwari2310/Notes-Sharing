@@ -40,9 +40,14 @@ function NoteCard({ note, onView, onDownload }) {
           <span className="file-type-pill">{note.fileType || 'PDF'}</span>
         </div>
 
-        <span className={`subject-badge ${getSubjectColorClass(note.subject)}`}>
-          {note.subject}
-        </span>
+        <div className="card-badge-group">
+          {note.semester && (
+            <span className="semester-pill-badge">{note.semester}</span>
+          )}
+          <span className={`subject-badge ${getSubjectColorClass(note.subject)}`}>
+            {note.subject}
+          </span>
+        </div>
       </div>
 
       {/* Note Title */}

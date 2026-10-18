@@ -2,29 +2,39 @@
  * Upload.jsx
  * 
  * Route: /upload
- * Upload Notes Page containing:
- *  - Heading: "Upload Study Notes"
- *  - Short explanation
- *  - One relevant real stock image (student desk with study notes, books, and laptop)
- *  - Upload notes form with all existing validation, file picker, and localStorage state persistence
- *  - Seamless redirection or navigation link to /notes upon upload
+ * Upload Notes Page:
+ * Allows students to upload PDFs/notes while explicitly choosing Semester (Sem 2, 3, 4, 5, 6)
+ * and Subject folder, then seamlessly redirects to the corresponding folder in Browse Notes.
  */
 
 import React from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import UploadNote from '../components/UploadNote';
 import { useNotes } from '../context/NotesContext';
-import { useNavigate } from 'react-router-dom';
+import { findSemester } from '../data/semestersData';
 
 function Upload() {
   const { handleAddNote, currentUser } = useNotes();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const querySemester = searchParams.get('semester') || searchParams.get('sem') || '';
+  const querySubject = searchParams.get('subject') || searchParams.get('subj') || '';
 
   const handleNoteCreated = async (newNote, file) => {
-    await handleAddNote(newNote, file);
-    // Automatically transition to /notes after brief feedback or user can see it right away
+    const created = await handleAddNote(newNote, file);
+    const semObj = findSemester(newNote.semester);
+    const targetSem = semObj ? semObj.id : '';
+    const targetSubj = encodeURIComponent(newNote.subject);
+
+    // Redirect straight into the folder on Browse Notes so user immediately sees their file!
     setTimeout(() => {
-      navigate('/notes');
-    }, 1500);
+      if (targetSem) {
+        navigate(`/notes?semester=${targetSem}&subject=${targetSubj}`);
+      } else {
+        navigate('/notes');
+      }
+    }, 1200);
   };
 
   return (
@@ -34,16 +44,16 @@ function Upload() {
         <div className="container">
           <div className="page-banner-card upload-banner-card">
             <div className="banner-content">
-              <span className="banner-tag">Student Contribution</span>
-              <h1 className="banner-title">Upload Study Notes</h1>
+              <span className="banner-tag">Student Contribution Studio</span>
+              <h1 className="banner-title">Upload Study Notes & PDFs</h1>
               <p className="banner-desc">
                 Share your handwritten lecture notes, formula sheets, or exam solutions with your college peers.
-                Help classmates prepare while keeping your own notes safely backed up in the cloud.
+                Select your semester (Sem 2, 3, 4, 5, 6) and subject folder to keep resources neatly organized.
               </p>
               <div className="upload-tips-summary">
-                <span className="tip-chip">✓ Clear handwriting or typed docs</span>
-                <span className="tip-chip">✓ Select accurate subject tags</span>
-                <span className="tip-chip">✓ PDFs, DOCs, or PPTs supported</span>
+                <span className="tip-chip">✓ Organized by Semesters 2, 3, 4, 5 & 6</span>
+                <span className="tip-chip">✓ Folder-based subject structure</span>
+                <span className="tip-chip">✓ PDFs, DOCs, and PPTs supported</span>
               </div>
             </div>
             <div className="banner-image-wrapper">
@@ -58,10 +68,21 @@ function Upload() {
         </div>
       </section>
 
+      {/* Breadcrumb back to Browse Notes */}
+      <div className="container">
+        <nav className="folder-breadcrumb-bar" style={{ marginTop: '16px', marginBottom: '8px' }}>
+          <Link to="/notes" className="breadcrumb-link">📁 Browse Notes</Link>
+          <span className="breadcrumb-separator">/</span>
+          <span className="breadcrumb-current">Upload Notes</span>
+        </nav>
+      </div>
+
       {/* 2. Upload Form Section */}
       <UploadNote
         onAddNote={handleNoteCreated}
         initialStudentName={currentUser?.name || currentUser?.fullName || ''}
+        initialSemester={querySemester}
+        initialSubject={querySubject}
       />
     </div>
   );

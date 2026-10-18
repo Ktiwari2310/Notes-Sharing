@@ -1,76 +1,41 @@
 import React from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useNotes } from "../context/NotesContext";
-
-const semesters = {
-  iii: {
-    name: "Semester III",
-    subjects: ["UHV", "Maths III", "DCD", "DSA", "DBMS"],
-    color: "#8b5cf6",
-  },
-  iv: {
-    name: "Semester IV",
-    subjects: ["Maths IV", "COA", "NoSQL", "CN"],
-    color: "#0d9488",
-  },
-  v: {
-    name: "Semester V",
-    subjects: ["SSIC", "OS", "AT", "WP", "CNS"],
-    color: "#6366f1",
-  },
-};
+import { findSemester, doesSubjectMatch, getSemesterNumber } from "../data/semestersData";
 
 function Semester() {
   const { semesterId } = useParams();
   const navigate = useNavigate();
   const { notes } = useNotes();
 
-  const semester = semesters[semesterId?.toLowerCase()];
+  const semester = findSemester(semesterId);
 
   if (!semester) {
     return (
       <div className="page-wrapper">
         <div className="container semester-page-content">
           <h2>Semester not found</h2>
-          <Link to="/dashboard" className="btn btn-primary">
-            Back to Dashboard
+          <p>Please select a valid semester from 2, 3, 4, 5, or 6.</p>
+          <Link to="/notes" className="btn btn-primary" style={{ marginTop: '16px' }}>
+            Browse All Semesters
           </Link>
         </div>
       </div>
     );
   }
 
-  const semesterNumber = { iii: "3", iv: "4", v: "5" }[
-    semesterId.toLowerCase()
-  ];
-
   const semesterNotes = notes.filter(
-    (note) => String(note.semester || "").match(/\d+/)?.[0] === semesterNumber,
+    (note) => getSemesterNumber(note.semester) === semester.id
   );
 
   const getCount = (subject) =>
-    semesterNotes.filter((note) => {
-      const actual = (note.subject || "").toLowerCase();
-      const wanted = subject.toLowerCase();
-
-      const aliases = {
-        dsa: ["data structures", "data structures and algorithms"],
-        dbms: ["database management system", "dbms"],
-        os: ["operating systems", "operating system"],
-        wp: ["web technologies", "web programming"],
-        cn: ["computer networks", "computer network"],
-        "maths iii": ["mathematics iii", "maths iii", "mathematics 3"],
-        "maths iv": ["mathematics iv", "maths iv", "mathematics 4"],
-      };
-
-      return actual === wanted || (aliases[wanted] || []).includes(actual);
-    }).length;
+    semesterNotes.filter((note) => doesSubjectMatch(note.subject, subject)).length;
 
   return (
     <div className="page-wrapper semester-page-content">
       <div className="container">
         <nav className="semester-breadcrumb">
-          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/notes">📁 Browse Notes</Link>
           <span> / </span>
           <span>{semester.name}</span>
         </nav>
@@ -78,7 +43,7 @@ function Semester() {
         <div className="semester-page-header">
           <div>
             <span className="section-eyebrow">Semester Explorer</span>
-            <h1>{semester.name}</h1>
+            <h1>{semester.name} ({semester.shortName})</h1>
             <p>
               {semester.subjects.length} subjects · {semesterNotes.length} notes
               available
@@ -104,8 +69,8 @@ function Semester() {
               onClick={() =>
                 navigate(
                   `/notes?semester=${encodeURIComponent(
-                    semester.name,
-                  )}&subject=${encodeURIComponent(subject)}`,
+                    semester.id
+                  )}&subject=${encodeURIComponent(subject)}`
                 )
               }
               style={{ "--semester-color": semester.color }}
@@ -120,8 +85,8 @@ function Semester() {
           ))}
         </div>
 
-        <Link to="/dashboard" className="btn btn-secondary semester-back">
-          ← Back to Dashboard
+        <Link to="/notes" className="btn btn-secondary semester-back">
+          ← Back to All Semesters
         </Link>
       </div>
     </div>

@@ -8,6 +8,38 @@ const User = require('../models/User');
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const SAMPLE_NOTES = [
+  // Semester 2
+  {
+    title: 'Engineering Mathematics II - Calculus & Differential Equations',
+    subject: 'Mathematics II',
+    description:
+      'Complete handwritten notes on Ordinary Differential Equations, Laplace Transforms, Fourier Series, and Multiple Integrals.',
+    uploadedBy: 'Vikram Malhotra',
+    uploadedDate: 'Oct 10, 2026',
+    semester: 'Semester 2',
+    fileSize: '3.2 MB',
+    fileType: 'PDF',
+    fileName: 'Maths_II_Calculus_Differential_Equations.pdf',
+    downloadCount: 184,
+    previewContent:
+      'Topics covered:\n• First order and higher order Linear Differential Equations\n• Laplace and Inverse Laplace Transforms\n• Fourier Series and Harmonic Analysis\n• Double and Triple Integrals.'
+  },
+  {
+    title: 'Applied Physics - Optics & Quantum Mechanics',
+    subject: 'Applied Physics',
+    description:
+      'Lecture summary covering Wave Optics, Interference, Diffraction, Polarization, Lasers, and Quantum Mechanics.',
+    uploadedBy: 'Riya Sen',
+    uploadedDate: 'Oct 12, 2026',
+    semester: 'Semester 2',
+    fileSize: '2.8 MB',
+    fileType: 'PDF',
+    fileName: 'Applied_Physics_Optics_Lasers_Quantum.pdf',
+    downloadCount: 145,
+    previewContent:
+      'Topics covered:\n• Wave Optics: Young\'s double slit, Newton\'s Rings\n• Lasers: Ruby Laser, He-Ne Laser\n• Fiber Optics: Numerical aperture, step-index fibers.'
+  },
+  // Semester 3
   {
     title: 'Complete Data Structures & Algorithms',
     subject: 'Data Structures',
@@ -97,6 +129,37 @@ const SAMPLE_NOTES = [
     downloadCount: 167,
     previewContent:
       'Topics covered:\n• HTML5 semantic elements and accessibility guidelines\n• Responsive Design: CSS Media queries, Flexbox layout, CSS Grid systems\n• Modern JavaScript: Arrow functions, Promises, async/await, Destructuring\n• React fundamentals: JSX, Props, State, and Component Lifecycle.'
+  },
+  // Semester 6
+  {
+    title: 'Machine Learning Foundations & Supervised Algorithms',
+    subject: 'Machine Learning',
+    description:
+      'Linear Regression, Logistic Regression, Decision Trees, Random Forests, Support Vector Machines (SVM), and evaluation metrics.',
+    uploadedBy: 'Karan Johar',
+    uploadedDate: 'Oct 9, 2026',
+    semester: 'Semester 6',
+    fileSize: '4.1 MB',
+    fileType: 'PDF',
+    fileName: 'ML_Supervised_Learning_Algorithms.pdf',
+    downloadCount: 275,
+    previewContent:
+      'Topics covered:\n• Supervised vs Unsupervised vs Reinforcement Learning\n• Regression: Simple & Multiple Linear Regression, Cost function, Gradient Descent\n• Classification: Logistic Regression, Decision Trees, Entropy, Information Gain\n• Model Evaluation: Precision, Recall, F1-Score, ROC curves, Cross-Validation.'
+  },
+  {
+    title: 'Compiler Design - Lexical Analysis & Parsing',
+    subject: 'Compiler Design',
+    description:
+      'Phases of compiler, Lexical Analyzer (Lex/Flex), Context-Free Grammars, LL(1) parsing, LR parsing, and intermediate code generation.',
+    uploadedBy: 'Neha Gupta',
+    uploadedDate: 'Oct 11, 2026',
+    semester: 'Semester 6',
+    fileSize: '3.6 MB',
+    fileType: 'PDF',
+    fileName: 'Compiler_Design_Lexical_Parsing_TAC.pdf',
+    downloadCount: 189,
+    previewContent:
+      'Topics covered:\n• Compiler phases: Lexical analysis, Syntax analysis, Semantic analysis\n• Finite Automata and Regular Expressions\n• Top-down Parsing: LL(1) with FIRST and FOLLOW\n• Bottom-up Parsing: Shift-Reduce, LR(0), SLR(1), LALR(1).'
   }
 ];
 
